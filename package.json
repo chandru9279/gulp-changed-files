@@ -1,6 +1,6 @@
 {
   "name": "gulp-changed-files",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Compares files from stream, with files from target folder. Passes through only changed files. Compares by sha1 digest",
   "main": "index.js",
   "dependencies": {
