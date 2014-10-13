@@ -1,5 +1,7 @@
-var changed = require('../')
-var gulp = require('gulp')
+/* jshint strict: true */
+
+var changed = require('../');
+var gulp = require('gulp');
 
 gulp.task('clean', function() {
     return gulp.src('./target', {read: false})
