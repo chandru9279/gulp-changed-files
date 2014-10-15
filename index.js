@@ -22,8 +22,11 @@ module.exports = function (opt) {
         console.log(opt.targetDir)
         console.log(targetFile)
         */
-        if (file.isNull()) return; // ignore
-        if (file.isStream()) return this.emit('error', new PluginError('gulp-changed-files', 'Streaming not supported'));
+        if (file.isNull()) return callback(); // ignore
+        if (file.isStream()) {
+            this.emit('error', new PluginError('gulp-changed-files', 'Streaming not supported'));
+            return callback();
+        }
 
         // TODO: dont compare is file sizes differ
 
@@ -38,8 +41,5 @@ module.exports = function (opt) {
         return callback();
     }
 
-    function flush() {
-    }
-
-    return through.obj(transform, flush);
+    return through.obj(transform);
 };
