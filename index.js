@@ -14,13 +14,14 @@ module.exports = function (opt) {
 
     function transform(file, enc, callback) {
         var vinylFile = file.path;
-        var targetFile = file.path.replace(opt.baseDir, opt.targetDir);
+        var targetFile = path.normalize(file.path).replace(path.normalize(opt.baseDir), path.normalize(opt.targetDir));
         // TODO: Log when debug
-
+        /*
         console.log(file.path)
         console.log(opt.baseDir)
         console.log(opt.targetDir)
         console.log(targetFile)
+        */
         if (file.isNull()) return; // ignore
         if (file.isStream()) return this.emit('error', new PluginError('gulp-changed-files', 'Streaming not supported'));
 
