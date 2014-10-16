@@ -11,31 +11,48 @@ module.exports = function (opt) {
     if (!opt) throw new PluginError('gulp-changed-files', 'Missing mandatory options for gulp-changed-files');
     if (!opt.targetDir) throw new PluginError('gulp-changed-files', 'Missing targetDir option for gulp-changed-files');
     if (!opt.baseDir) throw new PluginError('gulp-changed-files', 'Missing baseDir option for gulp-changed-files');
+    
+    function logSame(vinylFile, targetFile) {
+        if(opt.debug)
+            console.log('SAME         : ' + vinylFile + ' and ' + targetFile);
+    }
+    
+    function logDiff(vinylFile, targetFile) {
+        if(opt.debug)
+            console.log('DIFFERENT : ' + vinylFile + ' and ' + targetFile);
+    }
 
     function transform(file, enc, callback) {
         var vinylFile = file.path;
         var targetFile = path.normalize(file.path).replace(path.normalize(opt.baseDir), path.normalize(opt.targetDir));
-        // TODO: Log when debug
-        /*
-        console.log(file.path)
-        console.log(opt.baseDir)
-        console.log(opt.targetDir)
-        console.log(targetFile)
-        */
+
         if (file.isNull()) return callback(); // ignore
         if (file.isStream()) {
             this.emit('error', new PluginError('gulp-changed-files', 'Streaming not supported'));
             return callback();
         }
+        if(!fs.existsSync(vinylFile)) {
+            console.log('Source file does not exist ' + vinylFile);
+            return callback();
+        }
+        if(!fs.existsSync(targetFile)) {
+            this.push(file);
+            return callback();
+        }
 
-        // TODO: dont compare is file sizes differ
+        var sourceStat = fs.statSync(vinylFile);
+        var targetStat = fs.statSync(targetFile);
+        if (sourceStat["size"] == targetStat["size"]) {
+            logSame(vinylFile, targetFile);
+            return callback();
+        }
 
         var vinylDigest = crypto.createHash('sha1').update(file.contents).digest('hex');
         var targetDigest = crypto.createHash('sha1').update(fs.readFileSync(targetFile)).digest('hex');
         if (vinylDigest === targetDigest) {
-            console.log('Not copying ' + vinylFile + ' to ' + targetFile)
+            logSame(vinylFile, targetFile);
         } else {
-            console.log('Copying ' + vinylFile + ' to ' + targetFile)
+            logDiff(vinylFile, targetFile);
             this.push(file)
         }
         return callback();
